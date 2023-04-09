@@ -17,15 +17,18 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-
+#Modelo con extensión h5
 model_recharge = tf.keras.models.load_model('modelo_v2_0.h5')
 
+#Ruta de las imagenes de test
 dataset_path = 'D:/Proyectos_IA/Reconocimiento_Perros/dogImages'
 test_dir = os.path.join(dataset_path, 'test')
 data_gen_test = ImageDataGenerator(rescale = 1/255.)
 X_test = data_gen_test.flow_from_directory(test_dir, target_size = (128, 128),
                                                           batch_size = 32, class_mode = 'sparse')
 
+#Nombre de los perros 
+class_names = os.listdir('dogImages/test')
 
 # Definir el directorio del modelo y la versión
 MODEL_DIR = tempfile.gettempdir()
@@ -49,6 +52,13 @@ tf.keras.models.save_model(
 # Definir el comando a ejecutar
 #command = 'start cmd /c "tensorflow_model_server --rest_api_port=9999 --model_name=rec_perro --model_base_path=%MODEL_DIR% > server.log 2>&1"'
 command = 'start cmd /c "tensorflow_model_server --rest_api_port=8888 --model_name=rec_perro --model_base_path={} > server.log 2>&1"'.format(export_path)
+
+
+#python -m tensorflow_model_server --rest_api_port=8888 --model_name=rec_perro --model_base_path='D:\Proyectos_IA\Reconocimiento_Perros\rec_perro\1'
+
+
+
+
 # Iniciar el servidor del modelo en segundo plano utilizando la función subprocess.Popen
 server = subprocess.Popen(command, shell=True)
 
@@ -71,6 +81,9 @@ data = json.dumps({"signature_name":"serving_default", "instances":[image.tolist
 headers = {"content-type":"application/json"}
 json_response = requests.post(url='http://localhost:8888/v1/models/rec_perro:predict', data=data, headers=headers)
 
+predictions = json.loads(json_response.text)['predictions']
+
+print(class_names[np.argmax(predictions[0])])
 
 
 
