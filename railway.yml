@@ -1,0 +1,19 @@
+version: '1.0'
+name: fast-dog-api
+
+env:
+  RAILWAY_TOKEN: 96f3bacc-65f8-4097-9ca9-81ba9a1e8cb4
+
+services:
+  web:
+    image: railway/python:3.9
+    command: uvicorn Fast_dog_api:app --host 0.0.0.0 --port $PORT
+    env:
+      - PYTHONUNBUFFERED=1
+    # Change the path to your code file:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    # Add the port that the API will listen to:
+    ports:
+      - "8000:8000"
