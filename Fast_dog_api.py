@@ -13,7 +13,7 @@ import tensorflow.keras.models as models
 
 
 
-model = models.load_model('D:/Proyectos_IA/Reconocimiento_Perros/modelo_v2_0.h5', compile = False)
+model = models.load_model('modelo_v2_0.h5', compile = False)
 
 
 app = FastAPI()
