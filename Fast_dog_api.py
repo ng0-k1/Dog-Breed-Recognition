@@ -22,7 +22,7 @@ app = FastAPI()
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     #Etiquetas de las imagenes
-    class_names = os.listdir('D:/Proyectos_IA/Reconocimiento_Perros/dogImages/test')
+    class_names = os.listdir('dogImages/test')
     
     # Leer el contenido del archivo
     contents = await file.read()
