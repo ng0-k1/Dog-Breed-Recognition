@@ -10,10 +10,5 @@ services:
     command: uvicorn Fast_dog_api:app --host 0.0.0.0 --port $PORT
     env:
       - PYTHONUNBUFFERED=1
-    # Change the path to your code file:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    # Add the port that the API will listen to:
     ports:
       - "8000:8000"
