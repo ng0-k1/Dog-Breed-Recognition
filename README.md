@@ -34,11 +34,6 @@ Si desea desplegar este proyecto de manera local debera realizar los siguientes 
 ```
 **NOTA** TENGA EN CUENTA QUE **PATH** HACE REFERENCIA A LA RUTA DONDE DESCARGUE EL PROYECTO
 
-## License
-
-[APACHE](https://choosealicense.com/licenses/apache/)
-
-
 ## Authors
 
 - [@Enrique213-VP](https://github.com/Enrique213-VP)
@@ -85,3 +80,5 @@ Aquí se presenta la configuración de este archivo
   web: uvicorn Fast_dog_api:app --host=0.0.0.0 --port=${PORT:-5000}
 ```
     
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
