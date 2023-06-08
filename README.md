@@ -34,9 +34,8 @@ Si desea desplegar este proyecto de manera local debera realizar los siguientes 
 ```
 **NOTA** TENGA EN CUENTA QUE **PATH** HACE REFERENCIA A LA RUTA DONDE DESCARGUE EL PROYECTO
 
-## Authors
+## Author
 
-- [@Enrique213-VP](https://github.com/Enrique213-VP)
 - [@ng0-k1](https://github.com/ng0-k1)
 
 
