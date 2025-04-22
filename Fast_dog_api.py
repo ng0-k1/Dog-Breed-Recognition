@@ -9,40 +9,81 @@ import io
 import numpy as np
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile
-import tensorflow.keras.models as models
+from tensorflow.keras.models import load_model
 
 
+class DogBreedPredictorAPI:
+    """
+    API REST para la predicción de razas de perros a partir de imágenes.
+    Utiliza un modelo previamente entrenado y guardado en formato HDF5.
+    """
 
-model = models.load_model('modelo_v2_0.h5', compile = False)
+    def __init__(self, model_path: str, class_dir: str, image_size=(128, 128)):
+        """
+        Inicializa el predictor cargando el modelo y las etiquetas de clases.
 
+        Args:
+            model_path (str): Ruta al archivo del modelo (.h5).
+            class_dir (str): Ruta al directorio donde están las clases (subcarpetas).
+            image_size (tuple): Tamaño de entrada requerido por el modelo.
+        """
+        self.model = load_model(model_path, compile=False)
+        self.class_names = os.listdir(class_dir)
+        self.image_size = image_size
+
+    def preprocess_image(self, file_bytes: bytes) -> np.ndarray:
+        """
+        Procesa la imagen cargada para que sea compatible con el modelo.
+
+        Args:
+            file_bytes (bytes): Bytes de la imagen subida.
+
+        Returns:
+            np.ndarray: Imagen preprocesada como array normalizado y redimensionado.
+        """
+        image = Image.open(io.BytesIO(file_bytes))
+        image = image.resize(self.image_size)
+        image_array = np.array(image)
+        image_array = np.expand_dims(image_array, axis=0)  # Agrega dimensión batch
+        image_array = image_array.astype('float32') / 255.0
+        return image_array
+
+    def predict_label(self, image_array: np.ndarray) -> str:
+        """
+        Realiza la predicción con el modelo y devuelve la etiqueta.
+
+        Args:
+            image_array (np.ndarray): Imagen ya preprocesada.
+
+        Returns:
+            str: Nombre de la clase predicha.
+        """
+        prediction = self.model.predict(image_array)
+        predicted_index = np.argmax(prediction[0])
+        return self.class_names[predicted_index]
+
+
+# ---------------------- INICIALIZACIÓN DE LA API ---------------------- #
+predictor = DogBreedPredictorAPI(
+    model_path='modelo_v2_0.h5',
+    class_dir='dogImages/test'
+)
 
 app = FastAPI()
 
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
-    #Etiquetas de las imagenes
-    class_names = os.listdir('dogImages/test')
-    
-    # Leer el contenido del archivo
+    """
+    Endpoint para predecir la raza de un perro a partir de una imagen.
+
+    Args:
+        file (UploadFile): Imagen cargada por el usuario.
+
+    Returns:
+        dict: Etiqueta predicha para la imagen.
+    """
     contents = await file.read()
-    # Convertir el contenido del archivo en una imagen PIL
-    image = Image.open(io.BytesIO(contents))
-    # Convertir la imagen a 128x128 píxeles
-    image = image.resize((128, 128))
-    # Convertir la imagen a un array numpy
-    image_array = np.array(image)
-    # Añadir una dimensión adicional para que tenga la forma (1, 128, 128, 3)
-    image_array = np.expand_dims(image_array, axis=0)
-    # Normalizar los valores de píxel a un rango de 0 a 1
-    image_array = image_array.astype('float32') / 255.0
-    # Realizar la predicción con el modelo cargado
-    prediction = model.predict(image_array)
-    # Convertir la predicción en una etiqueta (o lo que sea que el modelo haya sido entrenado para predecir)
-    
-    label = class_names[np.argmax(prediction[0])]
-    #return prediction
+    image_array = predictor.preprocess_image(contents)
+    label = predictor.predict_label(image_array)
     return {"label": label}
-
-
-
